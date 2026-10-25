@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Route Search</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Reusable drawings: olive branch + Palestinian flag (used with <use href="#...">) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="olive" viewBox="0 0 64 64">
+      <path d="M6 58C22 46 38 30 58 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+      <g fill="currentColor">
+        <ellipse rx="8" ry="3" transform="translate(14 51) rotate(-100) translate(8 0)" />
+        <ellipse rx="8" ry="3" transform="translate(22 45) rotate(5) translate(8 0)" />
+        <ellipse rx="8" ry="3" transform="translate(30 37) rotate(-100) translate(8 0)" />
+        <ellipse rx="8" ry="3" transform="translate(38 29) rotate(5) translate(8 0)" />
+        <ellipse rx="8" ry="3" transform="translate(46 20) rotate(-100) translate(8 0)" />
+        <ellipse rx="7" ry="2.8" transform="translate(52 12) rotate(-45) translate(7 0)" />
+      </g>
+      <circle cx="27" cy="47" r="3.4" style="fill: var(--olive-fruit, #2f3320)" />
+      <circle cx="43" cy="33" r="3.4" style="fill: var(--olive-fruit, #2f3320)" />
+    </symbol>
+    <symbol id="flag" viewBox="0 0 30 20">
+      <rect width="30" height="6.67" fill="#000" />
+      <rect y="6.67" width="30" height="6.67" fill="#fff" />
+      <rect y="13.33" width="30" height="6.67" fill="#007a3d" />
+      <polygon points="0,0 11,10 0,20" fill="#ce1126" />
+    </symbol>
+  </svg>
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand__logo" aria-hidden="true">
+        <svg><use href="#olive" /></svg>
+      </span>
+      <div>
+        <h1>Route Search <svg class="flag" aria-label="Palestine" role="img"><use href="#flag" /></svg></h1>
+        <p class="sub">BFS · DFS · UCS · Greedy Best-First · A*</p>
+      </div>
+    </div>
+    <div class="map-source">
+      <span id="mapName" class="map-name"></span>
+      <label class="btn btn--ghost">
+        Upload map (.json)
+        <input id="mapFile" type="file" accept=".json,application/json" hidden />
+      </label>
+      <button id="resetMap" class="btn btn--ghost" type="button">Default map</button>
+    </div>
+  </header>
+  <!-- keffiyeh border: olive-leaf wave between two black lines -->
+  <div class="keffiyeh-band" aria-hidden="true"></div>
+
+  <main class="layout">
+    <section class="panel controls">
+      <h2 class="panel__title">Plan a route</h2>
+      <form id="searchForm">
+        <div class="trip">
+          <label class="field field--start">
+            <span>Start city</span>
+            <select id="start"></select>
+          </label>
+          <button id="swap" class="swap" type="button" title="Swap start and goal" aria-label="Swap start and goal">⇅</button>
+          <label class="field field--goal">
+            <span>Goal city</span>
+            <select id="goal"></select>
+          </label>
+        </div>
+        <label class="field">
+          <span>Algorithm</span>
+          <select id="algorithm"></select>
+        </label>
+        <div class="actions">
+          <button class="btn btn--primary" type="submit">Find route</button>
+          <button id="compareBtn" class="btn" type="button">Compare all</button>
+        </div>
+        <p class="hint">Tip: click a city on the map to set the start, then the goal.</p>
+      </form>
+
+      <div id="message" class="message" role="status" hidden></div>
+
+      <div id="result" class="result" hidden>
+        <div class="result__head" id="resultAlgo"></div>
+        <div class="result__path" id="resultPath"></div>
+        <div class="stats">
+          <div><span class="stat__num" id="resultCost"></span><span class="stat__lbl">total cost</span></div>
+          <div><span class="stat__num" id="resultSteps"></span><span class="stat__lbl">steps (nodes expanded)</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel map-panel">
+      <svg id="map" class="map" role="img" aria-label="Road map"></svg>
+      <svg class="map-olive" aria-hidden="true"><use href="#olive" /></svg>
+      <div class="legend">
+        <span><i class="dot dot--start"></i>Start</span>
+        <span><i class="dot dot--goal"></i>Goal</span>
+        <span><i class="line line--path"></i>Path found</span>
+      </div>
+    </section>
+  </main>
+
+  <section id="compareSection" class="panel compare" hidden>
+    <h2>Compare all</h2>
+    <p class="compare__sub" id="compareSub"></p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Algorithm</th><th>Path</th><th class="num">Cost</th><th class="num">Steps</th><th>Optimal</th></tr>
+        </thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+    <p class="hint">Click a row to show that path on the map.</p>
+  </section>
+
+  <footer class="foot">
+    <div class="keffiyeh-band" aria-hidden="true"></div>
+    <p>
+      <svg class="foot__olive" aria-hidden="true"><use href="#olive" /></svg>
+      An-Najah National University · Fundamentals of AI ·
+      <span lang="ar" dir="rtl">صُنع في فلسطين</span>
+      <svg class="flag" aria-hidden="true"><use href="#flag" /></svg>
+    </p>
+  </footer>
+
+  <!-- Order matters: data → helpers → algorithms → app -->
+  <script src="data/default-map.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/algorithms/uninformed.js"></script>
+  <script src="js/algorithms/informed.js"></script>
+  <script src="js/compare.js"></script>
+  <script src="js/map-view.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

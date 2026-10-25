@@ -1,0 +1,22 @@
+{
+  "name": "Sample test map (for the upload demo)",
+  "unit": "km",
+  "cities": [
+    { "name": "A", "x": 0, "y": 0 },
+    { "name": "B", "x": 10, "y": 8 },
+    { "name": "C", "x": 20, "y": 0 },
+    { "name": "D", "x": 10, "y": -8 },
+    { "name": "E", "x": 30, "y": 6 },
+    { "name": "F", "x": 40, "y": 0 }
+  ],
+  "roads": [
+    { "from": "A", "to": "B", "km": 13 },
+    { "from": "A", "to": "D", "km": 14 },
+    { "from": "B", "to": "C", "km": 14 },
+    { "from": "D", "to": "C", "km": 12 },
+    { "from": "B", "to": "E", "km": 22 },
+    { "from": "C", "to": "E", "km": 12 },
+    { "from": "C", "to": "F", "km": 25 },
+    { "from": "E", "to": "F", "km": 12 }
+  ]
+}
