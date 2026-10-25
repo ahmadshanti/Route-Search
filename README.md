@@ -11,7 +11,7 @@ compares all algorithms side by side.
 
 | Name | Student ID | Part |
 |------|-----------|------|
-| Ahmad Al-Shanti | _ID_ | Map loading, map drawing, UI, integration |
+| Ahmad Al-Shanti | _12326330_ | Map loading, map drawing, UI, integration |
 | Shaima _____ | _ID_ | BFS, DFS, UCS |
 | Hala _____ | _ID_ | Heuristic, Greedy Best-First, A*, Compare all |
 
