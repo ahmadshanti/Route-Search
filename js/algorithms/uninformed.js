@@ -26,12 +26,62 @@
   "use strict";
 
   /**
+   * Graph.neighbors may return plain city names, or objects that carry the
+   * city name and the road length. This turns either form into
+   * { city, km } so the algorithms don't care which one it is.
+   * (km is only needed by UCS; if it is missing we ask Graph.pathCost.)
+   */
+  function expand(graph, city) {
+    return Graph.neighbors(graph, city).map(function (nb) {
+      if (typeof nb === "string") {
+        return { city: nb, km: Graph.pathCost(graph, [city, nb]) };
+      }
+      var name = nb.city !== undefined ? nb.city
+               : nb.to !== undefined ? nb.to
+               : nb.name !== undefined ? nb.name
+               : nb.node;
+      var km = nb.km !== undefined ? nb.km
+             : nb.cost !== undefined ? nb.cost
+             : nb.weight !== undefined ? nb.weight
+             : nb.distance;
+      if (km === undefined) km = Graph.pathCost(graph, [city, name]);
+      return { city: name, km: km };
+    });
+  }
+
+  function fail(steps) {
+    return { path: null, cost: null, steps: steps };
+  }
+
+  function success(graph, path, steps) {
+    return { path: path, cost: Graph.pathCost(graph, path), steps: steps };
+  }
+
+  /**
    * Breadth-First Search — frontier is a FIFO queue.
    * Expected: Jenin → Hebron = 185 km, 11 steps
    */
   function bfs(graph, coords, start, goal) {
-    // TODO (Shaima)
-    throw new Error("NOT_IMPLEMENTED");
+    var frontier = [{ city: start, path: [start] }];
+    var head = 0;                       // queue pointer (avoids slow shift())
+    var expanded = new Set();
+    var steps = 0;
+
+    while (head < frontier.length) {
+      var node = frontier[head++];      // remove from the FRONT (FIFO)
+      if (expanded.has(node.city)) continue;
+      expanded.add(node.city);
+      steps++;
+
+      if (node.city === goal) return success(graph, node.path, steps);
+
+      expand(graph, node.city).forEach(function (nb) {
+        if (!expanded.has(nb.city)) {
+          frontier.push({ city: nb.city, path: node.path.concat(nb.city) });
+        }
+      });
+    }
+    return fail(steps);
   }
 
   /**
@@ -41,8 +91,26 @@
    * Expected: Jenin → Hebron = 185 km, 5 steps
    */
   function dfs(graph, coords, start, goal) {
-    // TODO (Shaima)
-    throw new Error("NOT_IMPLEMENTED");
+    var frontier = [{ city: start, path: [start] }];
+    var expanded = new Set();
+    var steps = 0;
+
+    while (frontier.length > 0) {
+      var node = frontier.pop();        // remove from the TOP (LIFO)
+      if (expanded.has(node.city)) continue;
+      expanded.add(node.city);
+      steps++;
+
+      if (node.city === goal) return success(graph, node.path, steps);
+
+      var nbs = expand(graph, node.city);
+      for (var i = nbs.length - 1; i >= 0; i--) {   // reverse A→Z
+        if (!expanded.has(nbs[i].city)) {
+          frontier.push({ city: nbs[i].city, path: node.path.concat(nbs[i].city) });
+        }
+      }
+    }
+    return fail(steps);
   }
 
   /**
@@ -51,8 +119,36 @@
    * Expected: Jenin → Hebron = 144 km, 11 steps
    */
   function ucs(graph, coords, start, goal) {
-    // TODO (Shaima)
-    throw new Error("NOT_IMPLEMENTED");
+    var frontier = [{ city: start, g: 0, path: [start] }];
+    var expanded = new Set();
+    var steps = 0;
+
+    while (frontier.length > 0) {
+      // pick the entry with the smallest g; on a tie, the alphabetically-first city
+      var best = 0;
+      for (var i = 1; i < frontier.length; i++) {
+        var a = frontier[i], b = frontier[best];
+        if (a.g < b.g || (a.g === b.g && a.city < b.city)) best = i;
+      }
+      var node = frontier.splice(best, 1)[0];
+
+      if (expanded.has(node.city)) continue;
+      expanded.add(node.city);
+      steps++;
+
+      if (node.city === goal) return success(graph, node.path, steps);
+
+      expand(graph, node.city).forEach(function (nb) {
+        if (!expanded.has(nb.city)) {
+          frontier.push({
+            city: nb.city,
+            g: node.g + nb.km,
+            path: node.path.concat(nb.city)
+          });
+        }
+      });
+    }
+    return fail(steps);
   }
 
   window.Algorithms = window.Algorithms || {};
