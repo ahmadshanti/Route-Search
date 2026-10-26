@@ -12,7 +12,7 @@ compares all algorithms side by side.
 | Name | Student ID | Part |
 |------|-----------|------|
 | Ahmad Al-Shanti | _12326330_ | Map loading, map drawing, UI, integration |
-| Shaima _____ | _ID_ | BFS, DFS, UCS |
+| Shaima Dwikat | _12323638_ | BFS, DFS, UCS |
 | Hala _____ | _ID_ | Heuristic, Greedy Best-First, A*, Compare all |
 
 ## How to run
