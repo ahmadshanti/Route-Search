@@ -26,27 +26,166 @@
    * Expected (goal = Hebron): Jenin 104, Nablus 78, Ramallah 42, Bethlehem 21
    */
   function heuristic(coords, n, goal) {
-    // TODO (Hala)
-    throw new Error("NOT_IMPLEMENTED");
+    const dx = coords[n].x - coords[goal].x;
+    const dy = coords[n].y - coords[goal].y;
+
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    return Math.floor(distance); 
   }
 
   /**
    * Greedy Best-First Search — frontier ordered by f(n) = h(n).
    * Expected: Jenin → Hebron = 144 km, 6 steps
    */
-  function greedy(graph, coords, start, goal) {
-    // TODO (Hala)
-    throw new Error("NOT_IMPLEMENTED");
+ function greedy(graph, coords, start, goal) {
+  const frontier = [
+    { city: start, path: [start] }
+  ];
+
+  const expanded = new Set();
+  let steps = 0;
+
+  while (frontier.length > 0) {
+    let best = 0;
+
+    for (let i = 1; i < frontier.length; i++) {
+      const currentH = heuristic(coords, frontier[i].city, goal);
+      const bestH = heuristic(coords, frontier[best].city, goal);
+
+      if (
+        currentH < bestH ||
+        (currentH === bestH &&
+          frontier[i].city < frontier[best].city)
+      ) {
+        best = i;
+      }
+    }
+
+    const node = frontier.splice(best, 1)[0];
+
+    if (expanded.has(node.city)) {
+      continue;
+    }
+
+    expanded.add(node.city);
+    steps++;
+
+    if (node.city === goal) {
+      return {
+        path: node.path,
+        cost: Graph.pathCost(graph, node.path),
+        steps: steps
+      };
+    }
+
+    const neighbors = Graph.neighbors(graph, node.city);
+
+    for (const neighbor of neighbors) {
+      if (!expanded.has(neighbor.city)) {
+        frontier.push({
+          city: neighbor.city,
+          path: node.path.concat(neighbor.city)
+        });
+      }
+    }
   }
+
+  return {
+    path: null,
+    cost: null,
+    steps: steps
+  };
+}
 
   /**
    * A* Search — frontier ordered by f(n) = g(n) + h(n).
    * Expected: Jenin → Hebron = 144 km, 10 steps
    */
   function aStar(graph, coords, start, goal) {
-    // TODO (Hala)
-    throw new Error("NOT_IMPLEMENTED");
-  }
+  const frontier = [
+    { city: start, path: [start], g: 0 }
+  ];
+
+  const expanded = new Set();
+  let steps = 0;
+
+  while (frontier.length > 0) {
+    let best = 0;
+
+    for (let i = 1; i < frontier.length; i++) {
+      const currentF =
+        frontier[i].g +
+        heuristic(coords, frontier[i].city, goal);
+
+      const bestF =
+        frontier[best].g +
+        heuristic(coords, frontier[best].city, goal);
+
+      if (
+        currentF < bestF ||
+        (currentF === bestF &&
+          frontier[i].city < frontier[best].city)
+      ) {
+        best = i;
+      }
+    }
+
+    const node = frontier.splice(best, 1)[0];
+
+    if (expanded.has(node.city)) {
+      continue;
+    }
+
+    expanded.add(node.city);
+    steps++;
+
+    if (node.city === goal) {
+      return {
+        path: node.path,
+        cost: node.g,
+        steps: steps
+      };
+    }
+
+    const neighbors = Graph.neighbors(graph, node.city);
+
+     for (const neighbor of neighbors) {
+       if (expanded.has(neighbor.city)) {
+        continue;
+       }
+
+       const newG = node.g + neighbor.km;
+
+       let existing = -1;
+
+       for (let i = 0; i < frontier.length; i++) {
+         if (frontier[i].city === neighbor.city) {
+          existing = i;
+          break;
+         }
+        }
+
+       if (existing === -1) {
+         frontier.push({
+           city: neighbor.city,
+           path: node.path.concat(neighbor.city),
+           g: newG
+         });
+       } else if (newG < frontier[existing].g) {
+         frontier[existing].g = newG;
+         frontier[existing].path =
+           node.path.concat(neighbor.city);
+       }
+      }
+  }   
+
+  return {
+    path: null,
+    cost: null,
+    steps: steps
+  };
+}
 
   window.Heuristic = heuristic;
   window.Algorithms = window.Algorithms || {};

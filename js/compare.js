@@ -25,8 +25,60 @@
   "use strict";
 
   function compareAll(graph, coords, start, goal, algorithms, order) {
-    // TODO (Hala)
-    throw new Error("NOT_IMPLEMENTED");
+    const rows = [];
+
+    for (const name of order) {
+      try {
+        const algorithm = algorithms[name];
+
+        if (typeof algorithm !== "function") {
+          throw new Error("Algorithm is not registered.");
+        }
+
+        const result = algorithm(graph, coords, start, goal);
+
+        rows.push({
+          name: name,
+          path: result.path,
+          cost: result.cost,
+          steps: result.steps,
+          optimal: false,
+          error: null
+        });
+      } catch (error) {
+        rows.push({
+          name: name,
+          path: null,
+          cost: null,
+          steps: null,
+          optimal: false,
+          error: error.message || String(error)
+       });
+      }
+    }
+
+    let lowestCost = Infinity;
+
+    for (const row of rows) {
+      if (
+        row.error === null &&
+        row.path !== null &&
+        Number.isFinite(row.cost) &&
+        row.cost < lowestCost
+      ) {
+        lowestCost = row.cost;
+      }
+    }
+
+    for (const row of rows) {
+      row.optimal =
+        row.error === null &&
+        row.path !== null &&
+        Number.isFinite(row.cost) &&
+        row.cost === lowestCost;
+    }
+
+    return rows;
   }
 
   window.Compare = { compareAll };
