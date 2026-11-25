@@ -13,7 +13,7 @@ compares all algorithms side by side.
 |------|-----------|------|
 | Ahmad Al-Shanti | _12326330_ | Map loading, map drawing, UI, integration |
 | Shaima Dwikat | _12323638_ | BFS, DFS, UCS |
-| Hala _____ | _ID_ | Heuristic, Greedy Best-First, A*, Compare all |
+| Hala Odwan | _12428938_ | Heuristic, Greedy Best-First, A*, Compare all |
 
 ## How to run
 
